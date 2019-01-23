@@ -1,0 +1,28 @@
+{
+  "name": "@surucode/suru",
+  "version": "",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node src/cli/index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/argparse": "^1.0.35",
+    "@types/node": "^10.12.10",
+    "argparse": "^1.0.10",
+    "callsites": "^3.0.0",
+    "chalk": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/callsites": "^2.0.0",
+    "@types/jest": "^23.3.10",
+    "jest": "^23.6.0",
+    "ts-jest": "^23.10.5",
+    "ts-loader": "^5.3.1",
+    "ts-node": "^8.0.1",
+    "typescript": "^3.2.1"
+  }
+}

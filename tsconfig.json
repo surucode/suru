@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+      "rootDir": "./src",
+      "outDir": "dist",
+      "noImplicitAny": true,
+      "module": "commonjs",
+      "target": "es6",
+      "lib": [
+        "es2016",
+        "es2017.object"
+      ],
+      "sourceMap": true,
+      "declaration": true
+    },
+    "exclude": [
+      "node_modules",
+      "suru.js",
+      "dist"
+    ]
+}
