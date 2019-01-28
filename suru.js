@@ -1,6 +1,4 @@
 const fs = require("fs");
-const process = require("process");
-const path = require("path");
 
 task(() => {
   name("build");
@@ -20,6 +18,10 @@ task(() => {
     delete package.devDependencies;
     delete package.scripts;
 
+    package.bin = {
+      suru: "./cli/index.js"
+    };
+
     fs.writeFileSync(
       __dirname + "/dist/package.json",
       JSON.stringify(package, null, 3)
@@ -28,37 +30,25 @@ task(() => {
     try {
       fs.unlinkSync(__dirname + "/dist/package-lock.json");
     } catch (err) {
-      console.error(err);
+      if (!(err.message && /^ENOENT/.test(err.message))) {
+        throw err;
+      }
     }
   });
 });
 
 task(() => {
-  name("pwdtest");
-  desc("pwdtest");
-
-  run(() => {
-    console.log("hello");
-    shell("pwd");
-    process.chdir(path.resolve("./dist", __dirname));
-    shell("pwd");
-    process.chdir(path.resolve("../..", __dirname));
-    shell("pwd");
-    process.chdir(__dirname);
-    shell("pwd");
-  });
-});
-
-task(() => {
   name("publish");
-  desc("publish suru-core");
+  desc("publish suru");
 
   shell("npm", "install");
 
   run(() => {
     invoke("build")();
-    process.chdir(path.resolve("./dist", __dirname));
-    shell("npm", "publish", "@surucode/suru-core");
+  });
+
+  chdir("./dist", () => {
+    shell("npm", "publish", "--access", "public");
   });
 });
 

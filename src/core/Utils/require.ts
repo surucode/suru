@@ -1,16 +1,21 @@
 import callsites from "callsites";
 import { dirname } from "path";
 
+const debug = require("debug")("suru:core:require");
+
 const core_src = dirname(__dirname);
 
 const require_from_dir = (name: string, path: string) => {
   try {
-    require(require.resolve(name, { paths: [path] }));
+    const file = require.resolve(name, { paths: [path] });
+    debug(`Requiring ${file}`);
+    require(file);
   } catch (err) {
     if (err.code === "MODULE_NOT_FOUND") {
-      console.debug("could not require ", name, "from", path);
+      debug("could not require ", name, "from", path);
       return false;
     }
+    throw err;
   }
 
   return true;
@@ -23,15 +28,12 @@ const _caller_dir = () => {
     if (hasReceiver) {
       const filename = callsite.getFileName();
       // ignore ourself
-        console.debug(`testing ${filename}`);
-      if (
-        !filename.includes(core_src) &&
-        !filename.startsWith("internal/")
-      ) {
-          console.debug(`returning ${filename}`);
+      debug(`testing ${filename}`);
+      if (!filename.includes(core_src) && !filename.startsWith("internal/")) {
+        debug(`returning ${dirname(filename)}`);
         return dirname(filename);
       } else {
-          console.debug(`${filename} includes ${core_src} (or internal/)`);
+        debug(`${filename} includes ${core_src} (or internal/)`);
       }
     }
   }

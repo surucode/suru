@@ -1,9 +1,11 @@
-export { ShellBit, ShellBitArgs } from "./bit/ShellBit";
+import { ShellBitRunArgs } from "./utils";
 
-type ShellBitArgs = Symbol;
+export { ShellBit } from "./bit/ShellBit";
+export { ShellBitArgs } from "./utils";
+
 type ShellBitFun = (program: string, ...args: Array<string | Symbol>) => void;
 interface ShellBit extends ShellBitFun {
-  args: ShellBitArgs;
+  args: ShellBitRunArgs;
 }
 
 declare global {

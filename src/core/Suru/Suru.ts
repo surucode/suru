@@ -1,8 +1,11 @@
-import { require_bit, require_pkg } from "../Utils"
+import { require_bit, require_pkg } from "../Utils";
 import { Task, SuruBit } from "..";
 import { TaskBuilder } from "./TaskBuilder";
 
 import { __tasks, __current_task, __package } from "../private";
+import { resolve } from "path";
+
+const debug = require("debug")("suru:coreF");
 
 export class Suru {
   private [__tasks]: { [name: string]: Task } = {};
@@ -25,20 +28,27 @@ export class Suru {
     return Object.values(this[__tasks]);
   }
 
-  public invoke(taskName: string): Function {
+  public invoke(taskName: string, ...args: any): Function {
     const unscoped = taskName.match(/^::/);
     const final_name = unscoped ? taskName : `${this[__package]}${taskName}`;
     const task = this.getTask(final_name);
 
     if (!(task instanceof Task)) {
-      console.log(this[__package])
+      debug(this[__package]);
       if (this[__package] !== "::") {
-        // try parent package before throwing        
-        const parent_pkg = this[__package].replace(/:[^:]*$/, '') + ':'
-        console.log("failed to invoke ", final_name, "trying", `${parent_pkg}${taskName}`)
-        return this.invoke(`${parent_pkg}${taskName}`);
+        // try parent package before throwing
+        const parent_pkg = this[__package].replace(/:[^:]*$/, "") + ":";
+        debug(
+          "failed to invoke ",
+          final_name,
+          "trying",
+          `${parent_pkg}${taskName}`
+        );
+        return this.invoke(`${parent_pkg}${taskName}`, ...args);
       }
-      throw new Error(`Cannot invoke task ! ${JSON.stringify(taskName, null, 3)}`);
+      throw new Error(
+        `Cannot invoke task ! ${JSON.stringify(taskName, null, 3)}`
+      );
     }
 
     return task.run.bind(task);
@@ -52,6 +62,7 @@ export class Suru {
         suru: { get: () => shimasu },
         task: { get: () => shimasu.task.bind(shimasu) },
         package: { get: () => shimasu.package.bind(shimasu) },
+        chdir: { get: () => shimasu.chdir.bind(shimasu) },
         invoke: { get: () => shimasu.invoke.bind(shimasu) },
         bit: { get: () => shimasu.bit.bind(shimasu) }
       });
@@ -85,18 +96,36 @@ export class Suru {
   }
 
   public package(pkg_name: string, pkg: (() => void) | string) {
-    this.run_in_package(`${this[__package]}${pkg_name.replace(/:$/, '')}:`, () => {
-      if (typeof pkg === "string") {
-        require_pkg(pkg);
-      } else {
-        pkg();
+    this.run_in_package(
+      `${this[__package]}${pkg_name.replace(/:$/, "")}:`,
+      () => {
+        if (typeof pkg === "string") {
+          require_pkg(pkg);
+        } else {
+          pkg();
+        }
       }
+    );
+  }
+
+  public chdir(dir: string, fn: () => void) {
+    const oldPwd = process.cwd();
+    process.chdir(resolve(oldPwd, dir));
+    fn();
+    process.chdir(oldPwd);
+  }
+
+  public runTask(task: Task, ...args: any[]) {
+    this.run_in_package(task.package, () => {
+      this.chdir(global.__project || process.cwd(), () => {
+        task.runFns.forEach(fn => fn.call(task, ...args));
+      });
     });
   }
 
-  public run_in_package(pkg_name: string, run: () => void) {
+  private run_in_package(pkg_name: string, run: () => void) {
     const pkg_before = this[__package];
-    this[__package] = `${pkg_name.replace(/:$/, '')}:`;
+    this[__package] = `${pkg_name.replace(/:$/, "")}:`;
     run();
     this[__package] = pkg_before;
   }
@@ -110,7 +139,8 @@ declare global {
       bit(name: string): void;
       task(defTaskFn: Function): Function;
       package(defTaskFn: Function): void;
-      invoke(taskName: string): Function;
+      invoke(taskName: string, ...args: any): Function;
+      chdir(dir: string, fn: () => void): Function;
     }
   }
 }

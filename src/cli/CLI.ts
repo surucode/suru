@@ -1,19 +1,17 @@
-import chalk from "chalk";
-
 import { Suru } from "../core";
 import { findSuruFile } from "./findSuruFile";
 import { SuruArgsParser } from "./SuruArgsParser";
 
 export function CLI() {
   // register Suru
-  const shimasu = Suru.register();
-  shimasu.bit("../shellbit");
-  shimasu.bit("../argbit");
+  Suru.register()
+    .bit("../shellbit")
+    .bit("../argbit");
 
-  const surufile = findSuruFile();
+  findSuruFile();
 
-  if (surufile) {
-    require(surufile);
+  if (global.__surufile) {
+    require(global.__surufile);
   }
 
   const argParser = new SuruArgsParser({

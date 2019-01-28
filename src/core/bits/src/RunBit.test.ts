@@ -10,7 +10,6 @@ test("Add runFn to a task", () => {
 
   task.run("test", "args");
 
-  expect(runFnSpy).toHaveBeenCalled();
   expect(runFnSpy).toHaveBeenCalledWith("test", "args");
 });
 

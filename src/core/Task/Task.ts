@@ -8,11 +8,6 @@ export class Task {
   public runFns: [(...args: any[]) => any] = [() => {}];
 
   public run(...args: any[]) {
-    console.log("RUNNING");
-    console.log(new Error().stack);
-    console.log(this.runFns);
-    Suru.register().run_in_package(this.package, () => {
-      this.runFns.forEach(fn => fn.call(this, ...args));
-    });
+    Suru.register().runTask(this, ...args);
   }
 }

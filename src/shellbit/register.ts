@@ -1,5 +1,6 @@
 import { Suru } from "../core";
-import { ShellBit, ShellBitArgs } from "./bit/ShellBit";
+import { ShellBit } from "./bit/ShellBit";
+import { ShellBitRunArgsPosition } from "./utils";
 
 const suru = Suru.registerBit("shell", ShellBit);
-(<any>suru.bits.shell).args = ShellBitArgs;
+(<any>suru.bits.shell).args = ShellBitRunArgsPosition;
