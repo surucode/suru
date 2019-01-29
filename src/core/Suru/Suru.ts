@@ -7,6 +7,9 @@ import { resolve } from "path";
 
 const debug = require("debug")("suru:coreF");
 
+export type SuruPackageFunctionOptions = { [key: string]: any };
+export type SuruPackageFunction = (opts?: SuruPackageFunctionOptions) => void;
+
 export class Suru {
   private [__tasks]: { [name: string]: Task } = {};
   private [__current_task]: Task | null = null;
@@ -95,15 +98,24 @@ export class Suru {
     return this;
   }
 
-  public package(pkg_name: string, pkg: (() => void) | string) {
+  public package(
+    pkg_name: string,
+    pkg: SuruPackageFunction | string,
+    opts: SuruPackageFunctionOptions = {}
+  ) {
     this.run_in_package(
       `${this[__package]}${pkg_name.replace(/:$/, "")}:`,
       () => {
-        if (typeof pkg === "string") {
-          require_pkg(pkg);
-        } else {
-          pkg();
+        const pkg_fn = typeof pkg === "string" ? require_pkg(pkg) : pkg;
+
+        if (typeof pkg_fn !== "function") {
+          throw new Error(
+            `Package given for ${pkg_name} is not a function,` +
+              ` it's a : ${typeof pkg_fn}`
+          );
         }
+
+        pkg_fn(opts);
       }
     );
   }

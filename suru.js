@@ -38,13 +38,13 @@ task(() => {
 
     fs.writeFileSync(
       __project + "/dist/cli/index.js",
-      `#!/usr/bin/env node\n${fs.readFileSync(
-        __project + "/dist/cli/index.js",
-        {
+      [
+        "#!/usr/bin/env node",
+        fs.readFileSync(__project + "/dist/cli/index.js", {
           encoding: "utf-8",
           flag: "r"
-        }
-      )}`
+        })
+      ].join("\n")
     );
   });
 });
