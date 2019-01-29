@@ -1,20 +1,57 @@
 import { SuruBit, Task } from "../../core";
-import { spawnSync } from "child_process";
-import { extractOptions, addRunArgs, ShellBitArgs } from "../utils";
+import {
+  spawnSync,
+  StdioOptions,
+  SpawnSyncReturns,
+  SpawnSyncOptions
+} from "child_process";
+import {
+  extractOptions,
+  addRunArgs,
+  ShellBitArgs,
+  ShellBitRunArgsPosition
+} from "../utils";
 import { cwd } from "process";
 
-export const ShellBit: SuruBit = (program: string, ...args: ShellBitArgs) => (
-  t: Task
-) => {
-  const dir = cwd();
-  t.runFns.push((...runArgs: any[]) => {
-    const { options, args_without_opts } = extractOptions(args);
-    const args_with_run_args = addRunArgs(args_without_opts, runArgs);
+type ExecFn = (
+  program: string,
+  ...args: ShellBitArgs
+) => SpawnSyncReturns<Buffer>;
+type RuntimeShellBitFn = (exec: ExecFn, ...runArgs: any[]) => void;
 
-    spawnSync(program, args_with_run_args, {
-      cwd: dir,
-      stdio: "inherit",
-      ...options
-    });
+export const ShellBit: SuruBit = (
+  program: string | RuntimeShellBitFn,
+  ...args: ShellBitArgs
+) => (t: Task) => {
+  const default_opts = {
+    cwd: cwd(),
+    stdio: <StdioOptions>"inherit"
+  };
+
+  t.runFns.push((...runArgs: any[]) => {
+    const executor = (program: string, ...args: ShellBitArgs) => {
+      const { options, args_without_opts } = extractOptions(args);
+      const realRunArgs =
+        Array.isArray(runArgs) &&
+        runArgs.length &&
+        typeof runArgs[0] === "object" &&
+        Array.isArray((<any>runArgs[0]).__args)
+          ? (<any>runArgs[0]).__args
+          : runArgs;
+
+      const args_with_run_args = addRunArgs(args_without_opts, realRunArgs);
+
+      return spawnSync(program, args_with_run_args, {
+        ...default_opts,
+        ...options
+      });
+    };
+    executor.args = ShellBitRunArgsPosition;
+
+    if (typeof program === "function") {
+      program(executor, ...runArgs);
+    } else {
+      executor(program, ...args);
+    }
   });
 };

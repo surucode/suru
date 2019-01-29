@@ -4,8 +4,10 @@ import { TaskBuilder } from "./TaskBuilder";
 
 import { __tasks, __current_task, __package } from "../private";
 import { resolve } from "path";
+import { SuruRuntimeError } from "./SuruRuntimeError";
+import chalk from "chalk";
 
-const debug = require("debug")("suru:coreF");
+const debug = require("debug")("suru:core");
 
 export type SuruPackageFunctionOptions = { [key: string]: any };
 export type SuruPackageFunction = (opts?: SuruPackageFunctionOptions) => void;
@@ -61,14 +63,15 @@ export class Suru {
     if (!("suru" in global)) {
       const shimasu = new Suru();
 
-      Object.defineProperties(global, {
-        suru: { get: () => shimasu },
-        task: { get: () => shimasu.task.bind(shimasu) },
-        package: { get: () => shimasu.package.bind(shimasu) },
-        chdir: { get: () => shimasu.chdir.bind(shimasu) },
-        invoke: { get: () => shimasu.invoke.bind(shimasu) },
-        bit: { get: () => shimasu.bit.bind(shimasu) }
+      const props: { [key: string]: { get: () => Suru | Function } } = {
+        suru: { get: () => shimasu }
+      };
+
+      ["task", "package", "chdir", "invoke", "dir", "fatal"].forEach(k => {
+        props[k] = { get: () => (<any>shimasu)[k].bind(shimasu) };
       });
+
+      Object.defineProperties(global, props);
 
       require("../bits/register");
     }
@@ -127,10 +130,27 @@ export class Suru {
     process.chdir(oldPwd);
   }
 
+  public fatal(message: string) {
+    throw new SuruRuntimeError(`Fatal: ${message}`);
+  }
+
   public runTask(task: Task, ...args: any[]) {
     this.run_in_package(task.package, () => {
       this.chdir(global.__project || process.cwd(), () => {
-        task.runFns.forEach(fn => fn.call(task, ...args));
+        const oldTask = global.__task;
+        try {
+          global.__task = task;
+          task.runFns.forEach(fn => fn.call(task, ...args));
+        } catch (err) {
+          debug("Error thrown running task : ");
+          debug(task);
+          debug(err);
+          if (err instanceof SuruRuntimeError) {
+            console.error(chalk.red(err.message));
+          }
+        } finally {
+          global.__task = oldTask;
+        }
       });
     });
   }
@@ -153,6 +173,8 @@ declare global {
       package(defTaskFn: Function): void;
       invoke(taskName: string, ...args: any): Function;
       chdir(dir: string, fn: () => void): Function;
+
+      __task: Task;
     }
   }
 }
