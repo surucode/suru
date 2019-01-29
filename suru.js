@@ -4,10 +4,11 @@ task(() => {
   name("build");
   desc("build suru with suru");
 
+  shell("npm", "install");
   shell("npx", "tsc", "-d");
 
   run(() => {
-    const package_json = fs.readFileSync(__dirname + "/package.json", {
+    const package_json = fs.readFileSync(__project + "/package.json", {
       encoding: "utf-8",
       flag: "r"
     });
@@ -23,25 +24,34 @@ task(() => {
     };
 
     fs.writeFileSync(
-      __dirname + "/dist/package.json",
+      __project + "/dist/package.json",
       JSON.stringify(package, null, 3)
     );
 
     try {
-      fs.unlinkSync(__dirname + "/dist/package-lock.json");
+      fs.unlinkSync(__project + "/dist/package-lock.json");
     } catch (err) {
       if (!(err.message && /^ENOENT/.test(err.message))) {
         throw err;
       }
     }
+
+    fs.writeFileSync(
+      __project + "/dist/cli/index.js",
+      `#!/usr/bin/env node\n${fs.readFileSync(
+        __project + "/dist/cli/index.js",
+        {
+          encoding: "utf-8",
+          flag: "r"
+        }
+      )}`
+    );
   });
 });
 
 task(() => {
   name("publish");
   desc("publish suru");
-
-  shell("npm", "install");
 
   run(() => {
     invoke("build")();
