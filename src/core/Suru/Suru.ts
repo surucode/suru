@@ -18,7 +18,7 @@ export class Suru {
   private [__package] = "::";
 
   public bits: {
-    [name: string]: ((...args: any[]) => void);
+    [name: string]: (...args: any[]) => void;
   } = {};
 
   public task(defTaskFn: Function): Function {
@@ -56,7 +56,7 @@ export class Suru {
       );
     }
 
-    return task.run.bind(task);
+    return task.run.bind(task)(...args);
   }
 
   public static register(): Suru {
@@ -125,6 +125,8 @@ export class Suru {
 
   public chdir(dir: string, fn: () => void) {
     const oldPwd = process.cwd();
+    debug(`chdir from ${oldPwd} to ${dir}`);
+    debug(`chdir to ${resolve(oldPwd, dir)}`);
     process.chdir(resolve(oldPwd, dir));
     fn();
     process.chdir(oldPwd);

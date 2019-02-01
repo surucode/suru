@@ -1,6 +1,6 @@
 {
   "name": "@surucode/suru",
-  "version": "0.0.7-rc1",
+  "version": "0.0.7-rc2",
   "description": "",
   "main": "src/index.ts",
   "scripts": {

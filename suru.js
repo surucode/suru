@@ -57,6 +57,12 @@ task(() => {
     invoke("build")();
   });
 
+  try {
+    fs.mkdirSync("./dist");
+  } catch (err) {
+    if (err.code != "EEXIST") throw err;
+  }
+
   chdir("./dist", () => {
     shell("npm", "publish", "--access", "public");
   });
