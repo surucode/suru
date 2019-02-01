@@ -54,7 +54,7 @@ task(() => {
   desc("publish suru");
 
   run(() => {
-    invoke("build")();
+    invoke("build");
   });
 
   try {
