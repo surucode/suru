@@ -42,7 +42,9 @@ export class Suru {
       debug(this[__package]);
       if (this[__package] !== "::") {
         // try parent package before throwing
-        const parent_pkg = this[__package].replace(/:[^:]*$/, "") + ":";
+        const parent_pkg = (
+          this[__package].replace(/:[^:]+:$/, "") + ":"
+        ).replace(/^:::$/, "::");
         debug(
           "failed to invoke ",
           final_name,
@@ -149,6 +151,8 @@ export class Suru {
           debug(err);
           if (err instanceof SuruRuntimeError) {
             console.error(chalk.red(err.message));
+          } else {
+            throw err;
           }
         } finally {
           global.__task = oldTask;

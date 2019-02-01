@@ -1,10 +1,5 @@
 import { SuruBit, Task } from "../../core";
-import {
-  spawnSync,
-  StdioOptions,
-  SpawnSyncReturns,
-  SpawnSyncOptions
-} from "child_process";
+import { spawnSync, StdioOptions, SpawnSyncReturns } from "child_process";
 import {
   extractOptions,
   addRunArgs,
@@ -12,6 +7,8 @@ import {
   ShellBitRunArgsPosition
 } from "../utils";
 import { cwd } from "process";
+
+const debug = require("debug")("suru:shellbit");
 
 type ExecFn = (
   program: string,
@@ -40,6 +37,11 @@ export const ShellBit: SuruBit = (
           : runArgs;
 
       const args_with_run_args = addRunArgs(args_without_opts, realRunArgs);
+
+      debug("spawning", program, args_with_run_args, {
+        ...default_opts,
+        ...options
+      });
 
       return spawnSync(program, args_with_run_args, {
         ...default_opts,
