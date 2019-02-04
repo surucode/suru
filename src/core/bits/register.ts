@@ -1,20 +1,8 @@
-import { Suru } from "..";
+import { Suru } from "../Suru";
+import NameBit from "./NameBit";
+import DescBit from "./DescBit";
+import RunBit from "./RunBit";
 
-import { DescBit } from ".";
-import { NameBit } from ".";
-import { RunBit } from ".";
-
-void Suru.register()
-.registerBit("desc", DescBit)
-.registerBit("name", NameBit)
-.registerBit("run", RunBit);
-
-declare global {
-  namespace NodeJS {
-    export interface Global {
-      name(name: string): void;
-      desc(desc: string): void;
-      run(runFn: Function): void;
-    }
-  }
-}
+Suru.bit(NameBit);
+Suru.bit(DescBit);
+Suru.bit(RunBit);

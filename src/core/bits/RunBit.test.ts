@@ -1,12 +1,12 @@
 import { RunBit } from "./RunBit";
-import { Task } from "../..";
+import { Task } from "..";
 
 test("Add runFn to a task", () => {
   const task = new Task();
 
   const runFnSpy = jest.fn();
 
-  RunBit(runFnSpy)(task);
+  RunBit(task)(runFnSpy);
 
   task.run("test", "args");
 
@@ -18,7 +18,7 @@ test("Add multiple runFn to a task", () => {
 
   const runFnSpy = jest.fn();
 
-  RunBit(runFnSpy)(task);
+  RunBit(task)(runFnSpy);
 
   const first_args = ["test", "args"];
 
@@ -29,7 +29,7 @@ test("Add multiple runFn to a task", () => {
 
   const runFnSpy2 = jest.fn();
 
-  RunBit(runFnSpy2)(task);
+  RunBit(task)(runFnSpy2);
 
   const second_args = ["test", "args", "second time"];
 

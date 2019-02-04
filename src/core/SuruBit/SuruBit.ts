@@ -1,3 +1,9 @@
 import { Task } from "..";
 
-export type SuruBit = (...args: any[]) => (t: Task) => void;
+type SuruBitDSL = (...args: any[]) => void;
+
+type SuruBitConstructor = (t: Task) => SuruBitDSL;
+
+type SuruBitProperties = { dsl: string };
+
+export type SuruBit = SuruBitConstructor & SuruBitProperties;

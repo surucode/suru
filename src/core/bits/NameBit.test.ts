@@ -1,5 +1,5 @@
 import { NameBit } from "./NameBit";
-import { Task } from "../..";
+import { Task } from "..";
 
 test("Add name to a task", () => {
   const task = new Task();
@@ -8,7 +8,7 @@ test("Add name to a task", () => {
 
   expect(task.name).not.toEqual(name);
 
-  NameBit(name)(task);
+  NameBit(task)(name);
 
   expect(task.name).toEqual(name);
 });
@@ -21,7 +21,7 @@ test("Add name to a packaged task", () => {
 
     expect(task.name).not.toEqual(name);
 
-    NameBit(name)(task);
+    NameBit(task)(name);
 
     expect(task.name).toEqual(`testpkg::${name}`);
 });

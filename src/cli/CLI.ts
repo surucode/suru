@@ -4,9 +4,8 @@ import { SuruArgsParser } from "./SuruArgsParser";
 
 export function CLI() {
   // register Suru
-  Suru.register()
-    .bit("../shellbit")
-    .bit("../argbit");
+  require("../shellbit/register");
+  require("../argbit/register");
 
   findSuruFile();
 
@@ -21,10 +20,10 @@ export function CLI() {
   });
 
   argParser.addArgument("task");
-  argParser.tasks = global.suru.getTasks();
+  argParser.tasks = global.__suru.getTasks();
 
   const { task } = argParser.parseArgs(process.argv.slice(2, 3));
-  const rTask = global.suru.getTask(`::${task}`);
+  const rTask = global.__suru.getTask(`::${task}`);
 
   if (rTask) {
     rTask.run(...process.argv.slice(3));

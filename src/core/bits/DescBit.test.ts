@@ -1,5 +1,5 @@
 import { DescBit } from "./DescBit";
-import { Task } from "../..";
+import { Task } from "..";
 
 test("Add desc to a task", () => {
     const task = new Task();
@@ -8,7 +8,7 @@ test("Add desc to a task", () => {
 
     expect(task.desc).not.toEqual(description);
 
-    DescBit(description)(task);
+    DescBit(task)(description);
    
     expect(task.desc).toEqual(description);
 })

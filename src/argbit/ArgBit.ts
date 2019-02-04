@@ -1,9 +1,16 @@
-import { SuruBit } from "../../core";
+import { SuruBit, Task } from "../core";
 import { ArgumentParser, ArgumentOptions } from "argparse";
-import { TaskWithArgs } from "./TaskWithArgs";
 
-const ArgBit: SuruBit = (arg: string | string[], opts: ArgumentOptions) => (
-  t: TaskWithArgs
+interface TaskWithArgs extends Task {
+  argParser: ArgumentParser;
+
+  runWithoutParsing: typeof Task.prototype.run;
+  run: (...args: any[]) => void;
+}
+
+const ArgBit: SuruBit = (t: TaskWithArgs) => (
+  arg: string | string[],
+  opts: ArgumentOptions
 ) => {
   if (!t.argParser) {
     if (!t.name || typeof t.name !== "string" || t.name.trim().length < 1) {
@@ -30,4 +37,6 @@ const ArgBit: SuruBit = (arg: string | string[], opts: ArgumentOptions) => (
   t.argParser.addArgument(arg, opts);
 };
 
-export { ArgBit };
+ArgBit.dsl = "arg";
+
+export default ArgBit;

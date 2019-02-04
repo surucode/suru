@@ -1,6 +1,8 @@
+const { task } = require("@surucode/suru");
+
 const fs = require("fs");
 
-task(() => {
+task(({ name, desc, shell }) => {
   name("build");
   desc("build suru with suru");
 
@@ -49,7 +51,7 @@ task(() => {
   });
 });
 
-task(() => {
+task(({ name, desc, run, chdir }) => {
   name("publish");
   desc("publish suru");
 
@@ -68,7 +70,7 @@ task(() => {
   });
 });
 
-task(() => {
+task(({ name, desc, shell }) => {
   name("test");
   desc("test with jest");
 
